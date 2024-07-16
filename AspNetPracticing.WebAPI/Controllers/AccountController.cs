@@ -48,7 +48,7 @@ namespace AspNetPracticing.WebAPI.Controllers
             else
             {
                 // IF can't create user cause ERRORS
-                return BadRequest(result.Errors);
+                return BadRequest(result.Errors.Select(er => er.Description));
             }
 
         }
@@ -60,11 +60,47 @@ namespace AspNetPracticing.WebAPI.Controllers
 
             if (user == null)
             {
-                return Ok(false);
+                return Ok(true);
             }
             else {
                 return Ok(false);
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<ApplicationUser>> Login(LoginDTO loginDTO)
+        {
+           var result = await _signInManager.PasswordSignInAsync
+                (loginDTO.Username, loginDTO.Password, isPersistent: false, lockoutOnFailure: false);
+
+            //      lockoutOnFailure: false --> block user login if user tried many times
+            //                                  (send many request to SERVER)
+
+            if (result.Succeeded)
+            {
+                ApplicationUser? user = await _userManager.FindByNameAsync(loginDTO.Username);
+
+                if (user == null)
+                {
+                    return NoContent();
+                }
+
+                return Ok(new { 
+                    Username = user.UserName,
+                    Lastname = user.Lastname,
+                    Email = user.Email
+                });
+            }
+
+            return Problem("Invalid Email or Password");
+        }
+
+        [HttpGet("logout")]
+        public async Task<IActionResult> Login()
+        {
+            await _signInManager.SignOutAsync();
+
+            return NoContent();
         }
     }
 }

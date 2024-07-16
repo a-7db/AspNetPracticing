@@ -10,6 +10,7 @@ namespace AspNetPracticing.WebAPI.DTOs
 
         [Required(ErrorMessage = "{0} can't be blank")]
         [EmailAddress(ErrorMessage = "{0} Should be valid format")]
+
         [Remote(action: "IsEmailAlreadyRegistered", controller: "Account", ErrorMessage = "{0 is already used}")]
         public string Email { get; set; } = string.Empty;
 
