@@ -8,6 +8,7 @@ namespace AspNetPracticing.WebAPI.ProgramServices
         public static WebApplicationBuilder AddAlljwtService(this WebApplicationBuilder builder)
         {
             builder.Services.AddTransient<IJwtService, JwtService>();
+            builder.Services.AddTransient<ICityService, CityService>();
 
             return builder;
         }
