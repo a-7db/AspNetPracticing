@@ -1,5 +1,6 @@
 ﻿using AspNetPracticing.WebAPI.DTOs;
 using AspNetPracticing.WebAPI.Identity;
+using AspNetPracticing.WebAPI.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,17 +14,20 @@ namespace AspNetPracticing.WebAPI.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IJwtService _jwtService;
 
         public AccountController
             (
                 UserManager<ApplicationUser> userManager,
                 SignInManager<ApplicationUser> signInManager,
-                RoleManager<ApplicationRole> roleManager
+                RoleManager<ApplicationRole> roleManager,
+                IJwtService jwtService
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
+            _jwtService = jwtService;
         }
 
         [HttpPost("register")]
@@ -85,11 +89,9 @@ namespace AspNetPracticing.WebAPI.Controllers
                     return NoContent();
                 }
 
-                return Ok(new { 
-                    Username = user.UserName,
-                    Lastname = user.Lastname,
-                    Email = user.Email
-                });
+                var authResponse = _jwtService.CreateJwtToken(user);
+
+                return Ok(authResponse);
             }
 
             return Problem("Invalid Email or Password");
